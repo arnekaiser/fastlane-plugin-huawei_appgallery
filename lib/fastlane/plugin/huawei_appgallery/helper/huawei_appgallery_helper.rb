@@ -76,7 +76,7 @@ module Fastlane
 
         # obtain upload url
         UI.message("Obtaining upload url ...")
-        uri = URI("https://connect-api.cloud.huawei.com/api/publish/v1/uploadUrl?suffix=apk")
+        uri = URI("https://connect-api.cloud.huawei.com/api/publish/v1/uploadUrl?suffix=apk&appId=#{app_id}")
         http = Net::HTTP.new(uri.host, uri.port)
         http.use_ssl = true
         request = Net::HTTP::Get.new(uri)
@@ -87,7 +87,7 @@ module Fastlane
         upload_url = result_json['uploadUrl'] # this is the upload server
         auth_code = result_json['authCode']
         if result.code.to_i != 200 || upload_url.nil? || auth_code.nil?
-          UI.user_error!("Cannot obtain upload url!")
+          UI.user_error!("Cannot obtain upload url! Result: #{result_json}")
         end
 
         # upload apk
