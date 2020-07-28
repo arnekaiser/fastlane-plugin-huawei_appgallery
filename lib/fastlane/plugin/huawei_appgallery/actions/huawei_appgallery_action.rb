@@ -1,14 +1,13 @@
 require 'fastlane/action'
-require_relative '../helper/huawei_appgallery_helper'
 
 module Fastlane
   module Actions
     class HuaweiAppgalleryAction < Action
       def self.run(params)
-        cookie = Helper::HuaweiAppgalleryHelper.request_cookie(params[:client_id], params[:time], params[:signature])
-        Helper::HuaweiAppgalleryHelper.update_release_notes(cookie, params[:app_id], params[:release_notes])
-        Helper::HuaweiAppgalleryHelper.upload_apk(cookie, params[:app_id], params[:apk_path])
-        Helper::HuaweiAppgalleryHelper.submit_app(cookie, params[:app_id])
+        access_token = Helper::HuaweiAppgalleryHelperV2.request_access_token(params[:client_id], params[:client_secret])
+        Helper::HuaweiAppgalleryHelperV2.update_release_notes(params[:client_id], access_token, params[:app_id], params[:release_notes])
+        Helper::HuaweiAppgalleryHelperV2.upload_apk(params[:client_id], access_token, params[:app_id], params[:apk_path])
+        Helper::HuaweiAppgalleryHelperV2.submit_app(params[:client_id], access_token, params[:app_id])
         UI.message('Finished!')
       end
 
@@ -35,14 +34,9 @@ module Fastlane
                                description: "Client ID of an AppGallery Connect API client",
                                   optional: false,
                                       type: String),
-          FastlaneCore::ConfigItem.new(key: :time,
-                                  env_name: "HUAWEI_APPGALLERY_TIME",
-                               description: "Time in milliseconds since 1970, which was used to create the signature",
-                                  optional: false,
-                                      type: String),
-          FastlaneCore::ConfigItem.new(key: :signature,
-                                  env_name: "HUAWEI_APPGALLERY_SIGNATURE",
-                               description: "Signature which needs to be created by your own. Example code: https://developer.huawei.com/consumer/en/service/hms/catalog/publishingAPI.html?page=hmssdk_appGalleryConnect_devguide",
+          FastlaneCore::ConfigItem.new(key: :client_secret,
+                                  env_name: "HUAWEI_APPGALLERY_CLIENT_SECRET",
+                               description: "Client Secret of an AppGallery Connect API client",
                                   optional: false,
                                       type: String),
           FastlaneCore::ConfigItem.new(key: :app_id,

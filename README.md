@@ -19,6 +19,10 @@ Example code: https://developer.huawei.com/consumer/en/service/hms/catalog/publi
 
 Pull requests are welcome. ;)
 
+## AppGallery Connect API (= API v2)
+To create client id and access token, go to [AppGalleryConnect](https://developer.huawei.com/consumer/en/service/josp/agc/index.html).
+Navigate to "Users and permissions", than click on the left on "Connect API" (in section "Api Key"). Now you create and manage your client ids and secrets.
+
 ## Example
 
 Check out the [example `Fastfile`](fastlane/Fastfile) to see how to use this plugin.
