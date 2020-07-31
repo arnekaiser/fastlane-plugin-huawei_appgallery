@@ -1,9 +1,8 @@
 lane :test do
   huawei_appgallery(
-      client_id: "#{client_id_from_the_developer_console}"
-      time: "1565882562866",
-      signature: "#{self_created_signature}", # https://developer.huawei.com/consumer/en/service/hms/catalog/publishingAPI.html?page=hmssdk_appGalleryConnect_devguide
-      app_id: "#{app_id_from_the_developer_console}"
+      client_id: "#{client_id_from_the_developer_console}",
+      client_secret: "#{client_secret_from_the_developer_console}",
+      app_id: "#{app_id_from_the_developer_console}",
       release_notes: {
         "en-US" => "Bug fixes",
         "de-DE" => "Fehlerbehebungen"
