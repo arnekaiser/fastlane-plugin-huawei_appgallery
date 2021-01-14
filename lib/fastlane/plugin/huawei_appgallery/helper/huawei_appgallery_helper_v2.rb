@@ -175,7 +175,34 @@ module Fastlane
 
       def self.submit_app(client_id, access_token, app_id)
         UI.message('Submitting app for review ...')
+        result = submitAppForReview(client_id, access_token, app_id)
+        
+        result_json = JSON.parse(result.body) 
+        code = result_json['ret']['code']
+        message = result_json['ret']['msg']  
 
+        if code == 204144660 && message["It may take 2-5 minutes"]
+            UI.message('Build is currently processing, waiting for 2 minutes before submitting again...')
+            sleep(120)
+            result = submitAppForReview(client_id, access_token, app_id)
+            
+            result_json = JSON.parse(result.body)
+            code = result_json['ret']['code']
+            message = result_json['ret']['msg'] 
+            UI.message("Submit Code - #{code}")
+            UI.message("Submit Message - #{message}")
+        elsif result.code.to_i == 0
+            UI.message('App Successfully Submitted For Review')
+        else
+            UI.user_error!("Could not submit app for review. (HTTP #{result.code} - #{result.message})")
+        end
+
+        result_json = JSON.parse(result.body)
+        json_ret = result_json['ret']
+        UI.message("app-submit ret: #{json_ret}")
+      end
+
+      def self.submitAppForReview(client_id, access_token, app_id)
         # should be in format yyyy-MM-dd'T'HH:mm:ssZZ, must be escaped to be GET param
         # https://apidock.com/ruby/DateTime/strftime
         # https://www.shortcutfoo.com/app/dojos/ruby-date-format-strftime/cheatsheet
@@ -190,16 +217,8 @@ module Fastlane
         request['Accept'] = 'application/json'
         request['Authorization'] = "Bearer #{access_token}"
         request['client_id'] = client_id
-        result = http.request(request)
-
-        if result.code.to_i != 200
-          UI.user_error!("Could not submit app for review. (HTTP #{result.code} - #{result.message})")
-        end
-
-        result_json = JSON.parse(result.body)
-        json_ret = result_json['ret']
-        UI.message("app-submit ret: #{json_ret}")
-      end
+        return http.request(request)
+      end 
     end
   end
 end
