@@ -183,7 +183,7 @@ module Fastlane
             UI.user_error!('Submission failed again.')
           end
         elsif result_code != 0 
-          UI.message('Submission failed.')
+          UI.user_error!('Submission failed.')
         end
       end
 
