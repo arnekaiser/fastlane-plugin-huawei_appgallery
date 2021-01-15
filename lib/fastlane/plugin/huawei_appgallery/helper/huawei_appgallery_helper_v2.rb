@@ -175,7 +175,20 @@ module Fastlane
 
       def self.submit_app(client_id, access_token, app_id)
         UI.message('Submitting app for review ...')
+        result_code = launch_submit_request(client_id, access_token, app_id)
+        if result_code == 204144660 # https://developer.huawei.com/consumer/en/doc/development/AppGallery-connect-References/agcapi-returncode_v2
+          UI.message('Submission failed, waiting some time and try again.')
+          sleep(120)
+          if launch_submit_request(client_id, access_token, app_id) != 0
+            UI.user_error!('Submission failed again.')
+          end
+        elsif result_code != 0 
+          UI.message('Submission failed.')
+        end
+      end
 
+
+      def self.launch_submit_request(client_id, access_token, app_id)
         # should be in format yyyy-MM-dd'T'HH:mm:ssZZ, must be escaped to be GET param
         # https://apidock.com/ruby/DateTime/strftime
         # https://www.shortcutfoo.com/app/dojos/ruby-date-format-strftime/cheatsheet
@@ -199,6 +212,13 @@ module Fastlane
         result_json = JSON.parse(result.body)
         json_ret = result_json['ret']
         UI.message("app-submit ret: #{json_ret}")
+        result_code = json_ret['code']
+
+        if result_code == 0
+          UI.message('Submission was successfull!')
+        end
+
+        return result_code
       end
     end
   end
