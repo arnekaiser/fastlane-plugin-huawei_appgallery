@@ -148,7 +148,7 @@ module Fastlane
         content = {
           'fileType' => 5, # type 5 = RPK or APK
           'files' => [{
-            'fileName' => 'naviki-release.apk', 
+            'fileName' => 'fastlane-release.apk', 
             'fileDestUrl' => apk_server_path
           }]
         }
@@ -175,15 +175,18 @@ module Fastlane
 
       def self.submit_app(client_id, access_token, app_id)
         UI.message('Submitting app for review ...')
-        result_code = launch_submit_request(client_id, access_token, app_id)
-        if result_code == 204144660 # https://developer.huawei.com/consumer/en/doc/development/AppGallery-connect-References/agcapi-returncode_v2
-          UI.message('Submission failed, waiting some time and try again.')
-          sleep(120)
-          if launch_submit_request(client_id, access_token, app_id) != 0
-            UI.user_error!('Submission failed again.')
+        loop do
+          result_code = launch_submit_request(client_id, access_token, app_id)
+          if result_code == 0 
+            UI.message('Submission was successfull!')
+            return
+          elsif result_code == 204144660 || result_code == 204144727
+            # https://developer.huawei.com/consumer/en/doc/development/AppGallery-connect-References/agcapi-returncode_v2
+            UI.message('Submission failed, waiting some time and try again.')
+            sleep(120)
+          else
+            UI.user_error!('Submission failed.')
           end
-        elsif result_code != 0 
-          UI.user_error!('Submission failed.')
         end
       end
 
@@ -212,13 +215,8 @@ module Fastlane
         result_json = JSON.parse(result.body)
         json_ret = result_json['ret']
         UI.message("app-submit ret: #{json_ret}")
-        result_code = json_ret['code']
-
-        if result_code == 0
-          UI.message('Submission was successfull!')
-        end
-
-        return result_code
+        
+        return json_ret['code']
       end
     end
   end
